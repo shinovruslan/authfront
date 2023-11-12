@@ -11,22 +11,20 @@ export default function Home() {
     const [validated, setValidated] = useState(false)
     async function authorize() {
         console.log(email)
-        await fetch('http://orca-app-r4hba.ondigitalocean.app/api/v1/auth/send', {
+        await fetch('api/v1/auth/send', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ email })
         })
         setAuthorized(true)
     }
     async function validate() {
-        const res = await fetch('https://orca-app-r4hba.ondigitalocean.app/api/v1/auth', {
+        const res = await fetch('api/v1/auth', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'https://orca-app-r4hba.ondigitalocean.app'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ email, otp })
         })
@@ -46,6 +44,19 @@ export default function Home() {
     }
     function logout() {
         signOut(auth)
+    }
+    async function userInfo() {
+        console.log(auth)
+        const token = await auth.currentUser?.getIdToken()
+        console.log(token)
+        const res = await fetch('/api/v1/user',
+            { method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }}
+            )
+        const data = await res.json()
+        console.log(data)
     }
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
@@ -94,6 +105,7 @@ export default function Home() {
                 :
                 (
                     <div className="w-1/3 flex flex-col gap-[20px] p-[20px] rounded-[10px] bg-[#F6F7F9]">
+                        <div className="w-full rounded-[10px] bg-[#F90] flex justify-center p-[12px] text-white" onClick={userInfo}>User Info</div>
                         <p className="text-[28px] font-semibold leading-[120%]">{userEmail}</p>
                         <div className="w-full rounded-[10px] bg-[#F90] flex justify-center p-[12px] text-white" onClick={logout}>Выйти</div>
                     </div>
